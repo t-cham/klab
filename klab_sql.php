@@ -32,23 +32,37 @@
 		$stmt=$pdo->query($sql);
 
 		foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row){
-			echo "<pre>";
+			/*echo "<pre>";
 			echo $row['tweet_text'];	
-			echo "</pre>";
+			echo "</pre>";*/
 
 			 //形態素解析したい文章
 			$word = $row['tweet_text'];
     		//URLの組み立て
-			$url = "http://jlp.yahooapis.jp/MAService/V1/parse?appid=" . $id . "&results=ma&sentence=" . urlencode($word);
+			$url = "http://jlp.yahooapis.jp/MAService/V1/parse?appid=" . $id . "&results=ma&filter=9&sentence=" . urlencode($word);
     		//戻り値をパース
-			$parse = simplexml_load_file($url);
-    		
-			foreach($parse->ma_result->word_list->word as $value){
-				echo $value->surface;
-				echo "／";
+			$xml = simplexml_load_file($url);
+
+			foreach($xml->ma_result->word_list->word as $value){
+				$data .= $value->surface."　";
+				
 			}
 		}
 
+		//ここから出現率
+
+		$url = "http://jlp.yahooapis.jp/MAService/V1/parse?appid=" . $id . "&results=uniq&uniq_filter=9&sentence=" . urlencode($data);
+    		//戻り値をパース
+		$xml = simplexml_load_file($url);
+
+		foreach ($xml->uniq_result->word_list as $cur){
+			for($i=0;$i<10000;$i++){
+				$tango[$i] = $cur->word[$i]->surface;
+				$count[$i] = $cur->word[$i]->count;
+
+				echo $count[$i];
+			}
+		}
 
 	}catch (PDOException $e){
 		print('Error:'.$e->getMessage());

@@ -10,7 +10,7 @@
 
     $mecab= shell_exec("echo 'Rからmecabを使って形態素解析を行ってみたいと思う' | mecab");
 
-
+    echo $mecab;
     ?>
 
 
